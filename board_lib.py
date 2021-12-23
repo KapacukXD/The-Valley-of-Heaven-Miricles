@@ -1,29 +1,33 @@
 #MODULE INFO BLOCK
 MODULE_NAME = 'libboard'
 MODULE_VERSION = '0.0.1_vhm'
+#MODULE INFO BLOCK END
 
 import pretty_out
 import pygame
+import os
 
 logger = pretty_out.Log()
 
 
 class Board:
     # создание поля
-    def __init__(self, width, height):
+    def __init__(self, width: int, height: int, cell_class: type):
         self.width = width
         self.height = height
         # значения по умолчанию
         self.left = 10
         self.top = 10
         self.cell_size = 30
+        self.__cell_class__ = cell_class
+        self.make_board()
         logger.start_message(MODULE_NAME, MODULE_VERSION)
 
     def make_board(self):
         self.board = [[
-            Cell(self.left + (i * self.cell_size),
-                 self.top + (j * self.cell_size), self.cell_size)
-            for j in range(self.height)
+            self.__cell_class__(self.left + (i * self.cell_size),
+                                self.top + (j * self.cell_size),
+                                self.cell_size) for j in range(self.height)
         ] for i in range(self.width)]
 
     # настройка внешнего вида
@@ -47,9 +51,9 @@ class Board:
 
     def get_cell_by_position(self, x_pos: int, y_pos: int):
         try:
-            return self.board[x_pos -
-                              self.left // self.cell_size][y_pos - self.top //
-                                                           self.cell_size]
+            return self.board[(x_pos - self.left) //
+                              self.cell_size][(y_pos - self.top) //
+                                              self.cell_size]
         except:
             return None
 
@@ -84,7 +88,30 @@ class Cell:
                          color=pygame.Color('white'),
                          rect=self.rect,
                          width=1)
-        self.elements[0].render()
+        try:
+            self.elements[0].render()
+        except IndexError:
+            pass
 
     def on_click(self, *args, **kwargs):
         self.elements[0].on_click(args, kwargs)
+
+    def __str__(self):
+        return f'cell on {self.rect}'
+
+
+class GameDisplay:
+    def __init__(self,
+                 image_name: str,
+                 display_resolution: tuple[int, int],
+                 window_name: str = 'Game Window') -> None:
+        pygame.init()
+        self.screen = pygame.display.set_mode(display_resolution)
+        self.bg = pygame.image.load(
+            os.join(['data', 'images', 'backgrounds', image_name]))
+        pygame.display.set_caption(window_name)
+        self.screen.blit(self.bg, self.bg.get_rect())
+
+    def get_screen(self) -> pygame.Surface:
+        return self.screen
+

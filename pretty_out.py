@@ -13,3 +13,4 @@ class Log:
 
     def start_message(self, module_name: str, module_version: str):
         self.out(f'[STARTED {module_name.upper()} ver {module_version}')
+ 
