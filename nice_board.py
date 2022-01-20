@@ -492,7 +492,7 @@ if __name__ == '__main__':
             f.write('y')
             f.close()
         else:
-            f = open('data/money.txt.txt', 'w')
+            f = open('data/money.txt', 'w')
             f.write(str(money))
             f.close()
 
